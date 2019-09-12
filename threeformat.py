@@ -17,7 +17,7 @@ from keras import backend as K
 
 def twomin():
   K.clear_session()
-  data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=45PX1LNA4QNXA2Q9')
+  data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=XZUST95N0Z2S1L6Q')
 
 
   data=data.json()
