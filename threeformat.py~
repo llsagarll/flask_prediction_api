@@ -17,7 +17,7 @@ from keras import backend as K
 
 def twomin():
   K.clear_session()
-  data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=XZUST95N0Z2S1L6Q')
+  data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=45PX1LNA4QNXA2Q9')
 
 
   data=data.json()
@@ -51,7 +51,7 @@ def twomin():
       #print(d)
       lst1.append(d)
 
-  lst1=str(lst1)
+  #lst1=str(lst1)
 
   x =df.date[99]
   datetime_obj_utc = x.replace(tzinfo=timezone('US/Eastern'))
@@ -89,7 +89,7 @@ def twomin():
 
   else:
       a=str(int(data['real'][99]-dif)) + " 0"
-	
+  
   ist="IST"
   lst=[]
   lst.append(r)
@@ -102,7 +102,7 @@ def twomin():
 
 def oneday():
 	K.clear_session()
-	data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=45PX1LNA4QNXA2Q9')
+	data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BTCUSD&interval=1min&apikey=XZUST95N0Z2S1L6Q')
 	data=data.json()
 
 	l = list(data['Time Series (1min)'])
@@ -138,7 +138,7 @@ def oneday():
 	# get market info for ethereum from the start of 2015 to the current day
 	eth_market_info1 = pd.read_html("https://coinmarketcap.com/currencies/ethereum/historical-data/?start=20130428&end="+t.strftime("%Y%m%d"))[0]
 
-	data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=ETHUSD&interval=1min&apikey=45PX1LNA4QNXA2Q9')
+	data=requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=ETHUSD&interval=1min&apikey=XZUST95N0Z2S1L6Q')
 	data=data.json()
 
 	l = list(data['Time Series (1min)'])
@@ -172,19 +172,19 @@ def oneday():
 	market_info = market_info[market_info['Date']>='2016-01-01']
 
 	for coins in ['bt_', 'eth_']: 
-		  kwargs = { coins+'day_diff': lambda x: ((x[coins+'Close'])-(x[coins+'Open']))/x[coins+'Open']}
-		  market_info = market_info.assign(**kwargs)
+			kwargs = { coins+'day_diff': lambda x: ((x[coins+'Close'])-(x[coins+'Open']))/x[coins+'Open']}
+			market_info = market_info.assign(**kwargs)
 	#market_info.head()
 
 	split_date = '2018-12-01'
 
 	for coins in ['bt_', 'eth_']: 
-		  kwargs = { coins+'close_off_high': lambda x: 2*(x[coins+'High']- x[coins+'Close'])/(x[coins+'High']-x[coins+'Low'])-1,
-		    coins+'volatility': lambda x: (x[coins+'High']- x[coins+'Low'])/(x[coins+'Open'])}
-		  market_info = market_info.assign(**kwargs)
+			kwargs = { coins+'close_off_high': lambda x: 2*(x[coins+'High']- x[coins+'Close'])/(x[coins+'High']-x[coins+'Low'])-1,
+			  coins+'volatility': lambda x: (x[coins+'High']- x[coins+'Low'])/(x[coins+'Open'])}
+			market_info = market_info.assign(**kwargs)
 
 	model_data = market_info[['Date']+[coin+metric for coin in ['bt_', 'eth_'] 
-		                           for metric in ['Close','Volume','close_off_high','volatility']]]
+			                         for metric in ['Close','Volume','close_off_high','volatility']]]
 	# need to reverse the data frame so that subsequent rows represent later timepoints
 	model_data = model_data.sort_values(by='Date')
 	#model_data.head()
@@ -204,10 +204,10 @@ def oneday():
 
 	LSTM_test_inputs1 = []
 	for i in range(len(test_set1)-window_len):
-		  temp_set1 = test_set1[i:(i+window_len)].copy()
-		  for col in norm_cols:
-		      temp_set1.loc[:, col] = temp_set1[col]/temp_set1[col].iloc[0] - 1
-		  LSTM_test_inputs1.append(temp_set1)
+			temp_set1 = test_set1[i:(i+window_len)].copy()
+			for col in norm_cols:
+			    temp_set1.loc[:, col] = temp_set1[col]/temp_set1[col].iloc[0] - 1
+			LSTM_test_inputs1.append(temp_set1)
 
 	#LSTM_test_inputs1
 
@@ -229,6 +229,7 @@ def oneday():
 	cur=str(test_set1['bt_Close'][window_len:][0])
 	#predicted price for 15 Aug
 	val= list(((np.transpose(bt_model.predict(LSTM_test_inputs1))+1) * test_set1['bt_Close'].values[:-window_len][0]))
+	val1=val[0][0]
 	val=str(val[0][0])
 	bitcoin_market_info1['unix'] = pd.DatetimeIndex ( bitcoin_market_info1['Date'] ).astype ( np.int64 )/1000000
 
@@ -249,9 +250,8 @@ def oneday():
 
 	d={}
 	d.update({"x":dte})
-	d.update({"y":val})
+	d.update({"y":val1})
 	lst1.insert(0,d)
-
 	lst=[]
 	tm=t.strftime("%Y-%m-%d %H:%M:%S")
 	ist="IST"
@@ -424,6 +424,7 @@ def weekpred():
 		                 test_set['bt_Close'].values[:-(window_len + pred_range)][::7].reshape(int(np.ceil((len(LSTM_test_inputs)-pred_range)/float(pred_range))),1))
 
 	cur=str(test_set1['bt_Close'][window_len:][0])
+	val1=bt_pred_prices[37][6]
 
 
 	val=str(bt_pred_prices[37][6])
@@ -451,10 +452,8 @@ def weekpred():
 
 	d={}
 	d.update({"x":dte})
-	d.update({"y":val})
+	d.update({"y":val1})
 	lst1.insert(0,d) 
-
-	lst1=str(lst1)
 
 	lst=[]
 	tm=t.strftime("%Y-%m-%d %H:%M:%S")
