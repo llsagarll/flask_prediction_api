@@ -222,6 +222,7 @@ def oneday():
 	cur=str(test_set1['bt_Close'][window_len:][0])
 	#predicted price for 15 Aug
 	val= list(((np.transpose(bt_model.predict(LSTM_test_inputs1))+1) * test_set1['bt_Close'].values[:-window_len][0]))
+	val1=val[0][0]
 	val=str(val[0][0])
 	bitcoin_market_info1['unix'] = pd.DatetimeIndex ( bitcoin_market_info1['Date'] ).astype ( np.int64 )/1000000
 
@@ -242,7 +243,7 @@ def oneday():
 
 	d={}
 	d.update({"x":dte})
-	d.update({"y":val})
+	d.update({"y":val1})
 	lst1.insert(0,d)
 
 	lst2=[]
@@ -410,7 +411,8 @@ def weekpred():
 
 	cur=str(test_set1['bt_Close'][window_len:][0])
 
-
+	
+	val1=bt_pred_prices[37][6]
 	val=str(bt_pred_prices[37][6])
 	bitcoin_market_info1['unix'] = pd.DatetimeIndex ( bitcoin_market_info1['Date'] ).astype ( np.int64 )/1000000
 
@@ -436,7 +438,7 @@ def weekpred():
 
 	d={}
 	d.update({"x":dte})
-	d.update({"y":val})
+	d.update({"y":val1})
 	lst1.insert(0,d)
 	lst2=[]
 	lst2=lst1[::-1]
